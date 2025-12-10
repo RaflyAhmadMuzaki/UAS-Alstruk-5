@@ -36,6 +36,7 @@ class Antrian {
     int nomorAntrian;
     Pasien pasien;
     Poli poliTujuan;
+    String keluhan;
     long timestamp; // Waktu pendaftaran
 
     public Antrian(int nomorAntrian, Pasien pasien, Poli poliTujuan) {
