@@ -6,10 +6,9 @@ import java.util.Queue;
 import java.util.Scanner;
 
 public class AntrianPasien {
-    // Data Master dan Transaksi
     private static HashMap<String, Pasien> dataPasien = new HashMap<>(); // ID Pasien -> Pasien
     private static HashMap<String, Poli> dataPoli = new HashMap<>();     // Nama Poli -> Poli
-    private static Queue<Antrian> antrianSaatIni = new LinkedList<>();    // Antrian aktif
+    private static Queue<Antrian> antrianSaatIni = new LinkedList<>();   // Antrian aktif
     private static List<Antrian> riwayatKunjungan = new ArrayList<>();   // Riwayat yang sudah dipanggil
 
     private static int counterAntrian = 1;
@@ -94,43 +93,59 @@ public class AntrianPasien {
         String alamat = scanner.nextLine();
         System.out.print("Masukkan Tanggal Lahir (dd/mm/yyyy): ");
         String tglLahir = scanner.nextLine();
+        System.out.print("Masukkan Keluhan: ");
+        String keluhan = scanner.nextLine();
 
         // Membuat objek Pasien Baru dan menyimpannya
         Pasien pasien = new Pasien(newId, nama, alamat, tglLahir);
         dataPasien.put(newId, pasien);
-        
+
         System.out.println(">> Pasien berhasil didaftarkan dengan ID: " + newId);
 
-        // 2. Pilih Poli Tujuan
-        System.out.println("\nPilih Poli Tujuan:");
+        // --- LOOPING PILIH POLI ---
         List<String> listPoli = new ArrayList<>(dataPoli.keySet());
-        for (int i = 0; i < listPoli.size(); i++) {
-            Poli poli = dataPoli.get(listPoli.get(i));
-            System.out.println((i + 1) + ". " + poli.namaPoli + " (Dr. " + poli.namaDokter + ")");
-        }
+        boolean inputValid = false; // Penanda loop
 
-        System.out.print("Masukkan nomor poli: ");
-        try {
-            int poliPilihan = Integer.parseInt(scanner.nextLine());
-            if (poliPilihan > 0 && poliPilihan <= listPoli.size()) {
-                Poli poli = dataPoli.get(listPoli.get(poliPilihan - 1));
-
-                // 3. Tambahkan ke antrian
-                Antrian antrianBaru = new Antrian(counterAntrian++, pasien, poli);
-                antrianSaatIni.add(antrianBaru);
-
-                System.out.println("\n--- PENDAFTARAN BERHASIL ---");
-                System.out.println("No. Antrian Anda: **" + antrianBaru.nomorAntrian + "**");
-                System.out.println("Pasien: " + pasien.nama + " | ID: " + newId);
-                System.out.println("Tujuan: " + poli.toString());
-            } else {
-                System.out.println("!! Nomor poli tidak valid. Pendaftaran dibatalkan.");
+        while (!inputValid) {
+            System.out.println("\nPilih Poli Tujuan:");
+            for (int i = 0; i < listPoli.size(); i++) {
+                Poli poli = dataPoli.get(listPoli.get(i));
+                System.out.println((i + 1) + ". " + poli.namaPoli + " (Dr. " + poli.namaDokter + ")");
             }
-        } catch (NumberFormatException e) {
-            System.out.println("!! Input harus berupa angka. Pendaftaran dibatalkan.");
-        }
-    }
 
+            System.out.print("Masukkan nomor poli: ");
+            try {
+                int poliPilihan = Integer.parseInt(scanner.nextLine());
+
+                // Cek apakah nomor valid sesuai jumlah poli
+                if (poliPilihan > 0 && poliPilihan <= listPoli.size()) {
+                    
+                    // Ambil data poli yang dipilih
+                    Poli poli = dataPoli.get(listPoli.get(poliPilihan - 1));
+
+                    // Tambahkan ke antrian
+                    Antrian antrianBaru = new Antrian(counterAntrian++, pasien, poli);
+                    antrianSaatIni.add(antrianBaru);
+
+                    System.out.println("\n--- PENDAFTARAN BERHASIL ---");
+                    System.out.println("No. Antrian Anda: **" + antrianBaru.nomorAntrian + "**");
+                    System.out.println("Pasien: " + pasien.nama + " | ID: " + newId);
+                    System.out.println("Tujuan: " + poli.toString());
+
+                    inputValid = true; // Input valid, keluar dari loop
+                } else {
+                    // Jika input angka tapi nomornya tidak ada di daftar
+                    System.out.println("!! Nomor poli tidak valid. Silakan pilih kembali.");
+                    // Loop akan berulang
+                }
+            } catch (NumberFormatException e) {
+                // Jika input bukan angka
+                System.out.println("!! Input harus berupa angka. Silakan coba lagi.");
+                // Loop akan berulang
+            }
+        }
+    } 
+    
     // 2. Daftar Antrian Saat Ini
     private static void tampilkanDaftarAntrian() {
         System.out.println("\n--- Daftar Antrian Saat Ini ---");
